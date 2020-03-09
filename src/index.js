@@ -7,6 +7,7 @@ function calc(expr) {
     if (!Array.isArray(splitExpr)) {
         splitExpr = splitExpr.split(' ');
     }
+    splitExpr =  splitExpr.filter(element => element!=='');
     for (let i = 0; i < splitExpr.length; i++) {
 
         if (splitExpr[i] === '*') {
@@ -62,27 +63,26 @@ function expressionCalculator(expr) {
     }
 
     if (countLeftBrackets > 0) {
-        let brackets = splitExpr.match(/(\([0-9\+\/\*\-. ]+\))/g);
-        brackets = brackets.join('');
-        let start = brackets;
-
-        brackets = brackets.replace('(', '').replace(')', '');
-
-        splitExpr = splitExpr.replace(start, calc(brackets));
-        splitExpr = splitExpr.replace(/\s/g, '');
-        splitExpr = splitExpr.replace(/[+]/g, ' + ').replace(/[-]/g, ' - ').replace(/[*]/g, ' * ').replace(/[/]/g, ' / ').replace(/[(]/g, ' (').replace(/[)]/g, ') ');
-    }
-
-    splitExpr = splitExpr.split(' ');
-    for (let i = 0; i < splitExpr.length; i++) {
-
-        if (splitExpr[i] == '') {
-            splitExpr.splice(i, 3, ('-' + splitExpr[i + 2]))
+        let partExpr = '';
+        let counter;
+        let copy  = splitExpr;
+        for (let i = 0; i < splitExpr.length; i++) {
+            if (splitExpr[i] === '(') {
+                counter = i;
+                partExpr = '';
+                continue;
+            }
+            if (splitExpr[i] === ')') {
+                let calcPart = calc(partExpr);
+                splitExpr = splitExpr.split('');
+                splitExpr.splice(counter, i - counter + 1, String(calcPart) );
+                splitExpr = splitExpr.join('');
+                i = 0; 
+            }
+            partExpr += splitExpr[i];
         }
     }
-
     let calculate = calc(splitExpr);
-
     return calculate;
 }
 module.exports = {
